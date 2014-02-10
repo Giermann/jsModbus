@@ -54,10 +54,11 @@ proto.handleData = function (that) {
     var pdu = data.pdu;
     var unit_id = data.unit_id;
 
-    log('received data');
+    log('received data pdu=' + pdu.length);
 
     // get fc and byteCount in advance
     var fc = pdu.readUInt8(0);
+    log('fc=' + fc);
     var byteCount = pdu.readUInt8(1);
 
     // get the pdu handler
@@ -84,7 +85,7 @@ proto.handleData = function (that) {
       return;
     }
 
-    var resObj = callback(params);
+    var resObj = callback.apply(null, params);
     var resPdu = resHandler.apply(that, resObj);
 debugger;
     // add mbdaHeader to resPdu and send it

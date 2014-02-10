@@ -72,33 +72,48 @@ function server_response_writeSingleCoil(outputAddress, outputValue) {
   return res.buffer();
 }
 
+function server_response_writeSingleRegister(outputAddress, outputValue) {
+  var res = Put().word8(6).word16be(outputAddress)
+    .word16be(outputValue);
+  return res.buffer();
+}
+
 function server_request_readCoils(data) {
     var pdu = data.pdu;
   var fc = pdu.readUInt8(0), // never used, should just be an example
       startAddress = pdu.readUInt16BE(1),
       quantity = pdu.readUInt16BE(3),
-            param = [ startAddress, quantity ];
-  return { unit_id: data.unit_id, param: param }; 
+            param = [ data.unit_id, startAddress, quantity ];
+  return param;
       }
 
 function server_request_readRegisters (data) {
     var pdu = data.pdu;
         var startAddress = pdu.readUInt16BE(1),
       quantity = pdu.readUInt16BE(3),
-      param = [ startAddress, quantity ];
-
-  return { unit_id: data.unit_id, param: param };
+      param = [ data.unit_id, startAddress, quantity ];
+      return param;
       }
 
 function server_request_writeSingleCoil(data) {
-          var pdu = data.pdu;
-       var outputAddress = pdu.readUInt16BE(1),
-     outputValue = pdu.readUInt16BE(3),
-           boolValue = outputValue===0xFF00?true:outputValue===0x0000?false:undefined,
-       param = [ outputAddress, boolValue ];
+    var pdu = data.pdu;
+    var outputAddress = pdu.readUInt16BE(1),
+    outputValue = pdu.readUInt16BE(3),
+    boolValue = outputValue===0xFF00?true:outputValue===0x0000?false:undefined,
+    param = [ data.unit_id, outputAddress, boolValue ];
 
-  return { unit_id: data.unit_id, param: param };
-     }
+    return param;
+}
+
+function server_request_writeSingleRegister(data) {
+  console.log("WRITE SINGLE REG!");
+    var pdu = data.pdu;
+    var outputAddress = pdu.readUInt16BE(1),
+    outputValue = pdu.readUInt16BE(3),
+    param = [ data.unit_id, outputAddress, outputValue ];
+
+    return param;
+}
 
 function client_response_readCoils (pdu, cb) {
 
@@ -158,7 +173,8 @@ exports.Server.ResponseHandler = {
     // read input registers
   4:  server_response_readRegisters,
   // write single register
-  5:  server_response_writeSingleCoil
+  5:  server_response_writeSingleCoil,
+  6:  server_response_writeSingleRegister
 };
 
 /**
@@ -176,7 +192,8 @@ exports.Server.RequestHandler = {
   // ReadInputRegister
   3:  server_request_readRegisters,
   4:  server_request_readRegisters,
-  5:  server_request_writeSingleCoil
+  5:  server_request_writeSingleCoil,
+  6:  server_request_writeSingleRegister
 }
 
 function client_response_writeSingleCoil(pdu, cb) {

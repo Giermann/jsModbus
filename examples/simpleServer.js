@@ -4,7 +4,7 @@ var jsModbus = require('../'),
 
 jsModbus.setLogger(function (msg) { util.log(msg); });
 
-var readInputRegHandler = function (start, quant) {
+var readInputRegHandler = function (params) {
   
   var resp = [];
   for (var i = start; i < start+quant; i += 1) {
@@ -15,6 +15,10 @@ var readInputRegHandler = function (start, quant) {
 
 };
 
+var writeRegHandler = function (params) {
+  console.log('write requested of ' + params.param[0] + ' value ' + params.param[1]);
+  return [params.param[0], params.param[1]];
+}
 
 jsModbus.createTCPServer(8000, '127.0.0.1', function (err, server) {
 
@@ -24,7 +28,7 @@ jsModbus.createTCPServer(8000, '127.0.0.1', function (err, server) {
     }
 
     server.addHandler(4, readInputRegHandler);
-
+    server.addHandler(6, writeRegHandler);
 });
 
 

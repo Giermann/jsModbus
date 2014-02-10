@@ -147,7 +147,7 @@ describe('Modbus TCP/IP Server', function () {
       socket.emit('data', req);
 
       assert.ok(handler.called);
-      assert.deepEqual(handler.args[0][0].param, [13, 11]);
+      assert.deepEqual(handler.args[0], [1, 13, 11]);
       assert.deepEqual(res, spy.getCall(0).args[0]);
 
     });
@@ -186,7 +186,7 @@ describe('Modbus TCP/IP Server', function () {
        socket.emit('data', req);
   
        assert.ok(stub.called);
-       assert.deepEqual(stub.args[0][0].param, [13, 2]); 
+       assert.deepEqual(stub.args[0], [1, 13, 2]); 
        assert.deepEqual(res, spy.getCall(0).args[0]);
     });
 

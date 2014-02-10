@@ -127,7 +127,7 @@ describe('Modbus TCP/IP Server', function () {
 
       assert.ok(handler.called);
       debugger;
-      assert.deepEqual(handler.args[0][0].param, [13, 11]);
+      assert.deepEqual(handler.args[0], [1, 13, 11]);
       assert.deepEqual(res, spy.getCall(0).args[0]);
 
     });
@@ -158,7 +158,7 @@ describe('Modbus TCP/IP Server', function () {
        socket.emit('data', {unit_id: 1, pdu: req});
   
        assert.ok(stub.called);
-       assert.deepEqual(stub.args[0][0].param, [13, 2]); 
+       assert.deepEqual(stub.args[0], [1, 13, 2]); 
        assert.deepEqual(res, spy.getCall(0).args[0]);
     });
 
@@ -234,9 +234,37 @@ describe('Modbus TCP/IP Server', function () {
       socket.emit('data', {unit_id: 1, pdu: req});
 
       assert.ok(stub.called);
-      assert.deepEqual(stub.args[0][0].param, [10, true]);
+      assert.deepEqual(stub.args[0], [1, 10, true]);
       assert.deepEqual(res, spy.getCall(0).args[0]); 
 
+    });
+
+    it('should respond to a writeSingleRegister request', function() {
+      var stub = sinon.stub()
+        .withArgs(10, 12345)
+        .returns([10, 12345]);
+
+      server.addHandler(6, stub);
+
+      var req = Put()
+        .word8(6)
+        .word16be(10)
+        .word16be(12345)
+        .buffer();
+
+      var res = Put()
+        .word8(6)
+        .word16be(10)
+        .word16be(12345)
+        .buffer();
+
+      var spy = sinon.spy(socket, 'write');
+
+      socket.emit('data', {unit_id: 1, pdu: req});
+
+      assert.ok(stub.called);
+      assert.deepEqual(stub.args[0], [1, 10, 12345]);
+      assert.deepEqual(res, spy.getCall(0).args[0]); 
     });
 
 

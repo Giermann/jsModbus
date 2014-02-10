@@ -110,7 +110,7 @@ proto._handleData = function (that) {
 
       cnt += 7;
 
-      log('MBAP extracted');
+      log('MBAP extracted unit id=' + unit_id);
 
       // 2. extract
 
@@ -123,7 +123,7 @@ proto._handleData = function (that) {
     
       cnt += pdu.length;
 
-      log('PDU extracted');
+      log('PDU extracted len=' +pdu.length);
 
       // emit data event and let the 
       // listener handle the pdu
