@@ -30,13 +30,13 @@ exports.createTCPClient = function (port, host, cb) {
           
   });
 
-  socket.on('connect', function () {
+  socket.on('connect', function (e) {
 
       if (!cb) {
           return;
       }
 
-      cb();
+      cb(e);
 
   });
 

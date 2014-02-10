@@ -106,7 +106,6 @@ function server_request_writeSingleCoil(data) {
 }
 
 function server_request_writeSingleRegister(data) {
-  console.log("WRITE SINGLE REG!");
     var pdu = data.pdu;
     var outputAddress = pdu.readUInt16BE(1),
     outputValue = pdu.readUInt16BE(3),

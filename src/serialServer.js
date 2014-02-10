@@ -1,5 +1,3 @@
-
-
 var Put = require('put'),
     util = require('util');
 
@@ -100,9 +98,9 @@ proto.handleException = function (fc, exceptionCode) {
 
   // replace that with an appropriate modbus error
   var errPkt = Put() 
-	.word8(fc + 0x80)
-	.word8(exceptionCode)
-	.buffer();
+  	.word8(fc + 0x80)
+  	.word8(exceptionCode)
+  	.buffer();
 
   this.socket.write(errPkt);
 
@@ -121,7 +119,7 @@ proto.handleConnection = function (that) {
 
   return function () {
     log("Connection established.");
-  }
+  };
 
 };
 
