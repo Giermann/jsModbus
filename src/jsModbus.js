@@ -67,12 +67,12 @@ exports.createTCPServer = function (port, host, cb) {
   socket.on('error', function (e) { cb(e); });
   socket.on('connection', function (s) {
 
-  //  var tcpServer = tcpServerModule.create(s);
+    var tcpServer = tcpServerModule.create(s);
 
-   // var server = serialServerModule.create(
-	//		tcpServer,
-	//		handler.Server.RequestHandler,
-	//		handler.Server.ResponseHandler);
+    var server = serialServerModule.create(
+			tcpServer,
+			handler.Server.RequestHandler,
+			handler.Server.ResponseHandler);
 
     cb(null, server);
 

@@ -50,6 +50,17 @@ var ModbusClient = function (socket, resHandler) {
    *  Public functions, in general all implementations from 
    *  the function codes
    */
+
+  function readRegister(fc) {
+    return function(unit_id, start, quantity, cb) {
+
+      var pdu = that.pduWithTwoParameter(fc, start, quantity);
+
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
+
+    };
+  }
+
   var api = {
 
     readCoils: function (unit_id, start, quantity, cb) {
@@ -59,14 +70,8 @@ var ModbusClient = function (socket, resHandler) {
       that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
     },
 
-    readInputRegister: function (unit_id, start, quantity, cb) {
-
-      var fc      = 4, 
-          pdu     = that.pduWithTwoParameter(fc, start, quantity);
-
-      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
-
-    },
+    readHoldingRegister: readRegister(3),
+    readInputRegister: readRegister(4),
 
     writeSingleCoil: function (unit_id, address, value, cb) {
 
