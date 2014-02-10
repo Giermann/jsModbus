@@ -98,7 +98,7 @@ describe('Modbus TCP/IP Server', function () {
       socket.emit('data', res);
 
       assert.ok(onDataSpy.called);
-      assert.deepEqual(onDataSpy.args[0][0], exRes);
+      assert.deepEqual(onDataSpy.args[0][0].pdu, exRes);
 
     });
 

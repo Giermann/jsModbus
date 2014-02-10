@@ -52,36 +52,36 @@ var ModbusClient = function (socket, resHandler) {
    */
   var api = {
 
-    readCoils: function (start, quantity, cb) {
+    readCoils: function (unit_id, start, quantity, cb) {
       var fc  = 1,
 	  pdu = that.pduWithTwoParameter(fc, start, quantity);
 
-      that.makeRequest(fc, pdu, !cb?dummy:cb);
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
     },
 
-    readInputRegister: function (start, quantity, cb) {
+    readInputRegister: function (unit_id, start, quantity, cb) {
 
       var fc      = 4, 
           pdu     = that.pduWithTwoParameter(fc, start, quantity);
 
-      that.makeRequest(fc, pdu, !cb?dummy:cb);
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
 
     },
 
-    writeSingleCoil: function (address, value, cb) {
+    writeSingleCoil: function (unit_id, address, value, cb) {
 
       var fc = 5,
 	  pdu = that.pduWithTwoParameter(fc, address, value?0xff00:0x0000);
 
-      that.makeRequest(fc, pdu, !cb?dummy:cb);
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
 
     },
 
-    writeSingleRegister: function (address, value, cb) {
+    writeSingleRegister: function (unit_id, address, value, cb) {
       var fc = 6,
           pdu = that.pduWithTwoParameter(fc, address, value);
 
-      that.makeRequest(fc, pdu, !cb?dummy:cb);
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
     },
 
     isConnected: function () {
@@ -111,9 +111,9 @@ var proto = ModbusClient.prototype;
  * Pack up the pdu and the handler function
  * and pipes both. Calls flush in the end.
  */
-proto.makeRequest = function (fc, pdu, cb) {
+proto.makeRequest = function (unit_id, fc, pdu, cb) {
 
-  var req = { fc: fc, cb: cb, pdu: pdu };
+  var req = { unit_id: unit_id, fc: fc, cb: cb, pdu: pdu };
 
   this.pipe.push(req);
 
@@ -136,9 +136,8 @@ proto.flush = function () {
     if (this.pipe.length > 0 && !this.current) {
 
         this.current = this.pipe.shift();
-
         log('sending data');
-        this.socket.write(this.current.pdu);
+        this.socket.write(this.current.unit_id, this.current.pdu);
         this.state = "waiting";
     
     }

@@ -1,12 +1,12 @@
 {
   "name": "jsmodbus",
   "version": "0.2.0",
-  "description": "Implementation for the Serial/TCP Modbus protocol.",
+  "description": "[CHASER MOD] Implementation for the Serial/TCP Modbus protocol.",
   "author": "Stefan Poeter <stefan.poeter@gmail.com>",
   "main": "./src/jsModbus.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/StevePo/jsModbus"
+    "url": "git://github.com/chaser92/jsModbus"
   },
   "maintainers": [
     "Stefan Poeter <Stefan.Poeter@gmail.com>"

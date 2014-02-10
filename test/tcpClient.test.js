@@ -133,7 +133,7 @@ describe('Modbus TCP/IP Client', function () {
 		.buffer();
 
      socket.emit('connect');
-     client.write(req);
+     client.write(1, req); //unit_id, pdu
 
      assert.ok(writeSpy.calledOnce);
      assert.deepEqual(writeSpy.args[0][0], exReq); 

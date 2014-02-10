@@ -38,13 +38,13 @@ var ModbusTCPServer = function (socket) {
 
     var mbap = this.mbapFifo.shift();
 
-    var pkt = Put()
-	.word16be(mbap.trans_id)     // transaction id
-	.word16be(mbap.protocol_ver) // protocol version
-	.word16be(pdu.length + 1)    // pdu length
-	.word8(mbap.unit_id)         // unit id
-	.put(pdu)                    // the actual pdu
-	.buffer();
+     var pkt = Put()
+	 .word16be(mbap.trans_id)     // transaction id
+	 .word16be(mbap.protocol_ver) // protocol version
+	 .word16be(pdu.length + 1)    // pdu length
+	 .word8(mbap.unit_id)         // unit id
+	 .put(pdu)                    // the actual pdu
+	 .buffer();
 
     this.reqFifo.push(pkt);          // pipe the packet
     this._flush();
@@ -72,6 +72,7 @@ proto._flush = function () {
 
   while (this.reqFifo.length > 0) {
     var pkt = this.reqFifo.shift();
+    debugger;
     this._socket.write(pkt);
   }
 }
@@ -83,7 +84,7 @@ proto._flush = function () {
 proto._handleData = function (that) {
 
   return function (data) {
-   
+    debugger;
     log('received data');
 
     var cnt = 0;
@@ -101,11 +102,11 @@ proto._handleData = function (that) {
 
       var mbap = data.slice(cnt, cnt + 7),
           len = mbap.readUInt16BE(4);
-
+      var unit_id = mbap.readUInt8(6);
       that.mbapFifo.push({ 
-	trans_id: mbap.readUInt16BE(0),
-	protocol_ver: mbap.readUInt16BE(2),
-	unit_id: mbap.readUInt8(6) }); 
+    	trans_id: mbap.readUInt16BE(0),
+    	protocol_ver: mbap.readUInt16BE(2),
+    	unit_id: unit_id }); 
 
       cnt += 7;
 
@@ -126,8 +127,8 @@ proto._handleData = function (that) {
 
       // emit data event and let the 
       // listener handle the pdu
-
-      that.emit('data', pdu); 
+      
+      that.emit('data', {'unit_id': unit_id, 'pdu': pdu}); 
   
     }
 

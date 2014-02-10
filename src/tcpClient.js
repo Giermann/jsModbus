@@ -9,8 +9,7 @@ exports.setLogger = function (logger) {
   log = logger;
 };
 
-var PROTOCOL_VERSION = 0,
-    UNIT_ID = 1;
+var PROTOCOL_VERSION = 0;
 
 /**
  *  ModbusTCPClient handles the MBAP that is the
@@ -41,13 +40,13 @@ var ModbusTCPClient = function (socket) {
 
   // create a modbus tcp packet with mbap and pdu
   // and attach the packet to the packet pipe.
-  this.write = function (pdu) {
-
+  this.write = function (unit_id, pdu) {
+    debugger;
     var pkt = Put()
 	.word16be(this.reqId++)      // transaction id
 	.word16be(PROTOCOL_VERSION)  // protocol version
 	.word16be(pdu.length + 1)    // pdu length
-	.word8(UNIT_ID)              // unit id
+	.word8(unit_id)              // unit id
 	.put(pdu)                    // the actual pdu
 	.buffer();
 

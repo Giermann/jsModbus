@@ -56,7 +56,6 @@ exports.Server.ResponseHandler = {
  	  }
 	  res.word8(cur);
    	}
-
         return res.buffer();
       },
   // read input register
@@ -68,14 +67,14 @@ exports.Server.ResponseHandler = {
 	  res.word16be(register[i]);
 	}
 
-	return res.buffer();
+        return res.buffer();
   },
   5:  function (outputAddress, outputValue) {
 
         var res = Put().word8(5).word16be(outputAddress)
-		.word16be(outputValue?0xFF00:0x0000).buffer();
+		.word16be(outputValue?0xFF00:0x0000);
 
-        return res;
+        return res.buffer();
   }
 
 };
@@ -90,33 +89,33 @@ exports.Server.ResponseHandler = {
 exports.Server.RequestHandler = {
 
   // ReadCoils
-  1:  function (pdu) {
-
+  1:  function (data) {
+    var pdu = data.pdu;
 	var fc = pdu.readUInt8(0), // never used, should just be an example
 	    startAddress = pdu.readUInt16BE(1),
 	    quantity = pdu.readUInt16BE(3),
             param = [ startAddress, quantity ];
-
-	return param;	
+debugger;
+	return { unit_id: data.unit_id, param: param };	
       },
 
   // ReadInputRegister
-  4:  function (pdu) {
-
+  4:  function (data) {
+    var pdu = data.pdu;
         var startAddress = pdu.readUInt16BE(1),
 	    quantity = pdu.readUInt16BE(3),
 	    param = [ startAddress, quantity ];
 
-        return param;
+  return { unit_id: data.unit_id, param: param };
       },
-  5: function (pdu) {
-      
+  5: function (data) {
+          var pdu = data.pdu;
        var outputAddress = pdu.readUInt16BE(1),
 	   outputValue = pdu.readUInt16BE(3),
            boolValue = outputValue===0xFF00?true:outputValue===0x0000?false:undefined,
    	   param = [ outputAddress, boolValue ];
 
-       return param;
+  return { unit_id: data.unit_id, param: param };
      }
   }
 

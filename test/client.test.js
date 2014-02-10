@@ -193,7 +193,7 @@ describe("Modbus TCP/IP Client", function () {
 
             var cb = sinon.spy();
 
-            client.readInputRegister(0, 1, cb);
+            client.readInputRegister(0, 0, 1, cb);
 
             var res = Put()
                 .word16be(0)   // transaction id
@@ -216,8 +216,8 @@ describe("Modbus TCP/IP Client", function () {
 
             var cb = sinon.spy();
 
-            client.readInputRegister(0, 1, cb);
-            client.readInputRegister(1, 1, cb);
+            client.readInputRegister(0, 0, 1, cb);
+            client.readInputRegister(0, 1, 1, cb);
 
             var res1 = Put()
                 .word16be(0)
@@ -257,8 +257,8 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
-      client.readInputRegister(1, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
+      client.readInputRegister(0, 1, 1, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(5).word8(1) // header packet 1
 	          .word8(4)  	// function code
@@ -287,7 +287,7 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(3).word8(1) // header
 		 .word8(0x84)  // error code
@@ -295,7 +295,7 @@ describe("Modbus TCP/IP Client", function () {
 		 .buffer();
 
       socket.emit('data', res);
-
+      
       assert.ok(cb.calledOnce);
       assert.equal(cb.args[0][0], null);
       assert.deepEqual(cb.args[0][1], { 
@@ -310,7 +310,7 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.readCoils(0, 17, cb);
+      client.readCoils(0, 0, 17, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(6).word8(1) // header
 		.word8(1)  // function code
@@ -337,7 +337,7 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleCoil(13, false, cb);
+      client.writeSingleCoil(0, 13, false, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(6).word8(1) // header
 		.word8(5)     // function code
@@ -361,7 +361,7 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleCoil(15, true, cb);
+      client.writeSingleCoil(0, 15, true, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(6).word8(1)  // header
 		.word8(5)         // function code
@@ -385,7 +385,7 @@ describe("Modbus TCP/IP Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleRegister(13, 42, cb);
+      client.writeSingleRegister(0, 13, 42, cb);
 
       var res = Put().word16be(0).word16be(0).word16be(6).word8(1)   // header
   		 .word8(6)      // function code

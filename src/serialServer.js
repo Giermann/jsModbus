@@ -31,7 +31,6 @@ var ModbusServer = function (
 
   // initiate server
   that.socket = socket;
-
   socket.on('end', that.handleEnd(that));
   socket.on('data', that.handleData(that));
   
@@ -51,7 +50,9 @@ var proto = ModbusServer.prototype;
 
 proto.handleData = function (that) {
 
-  return function (pdu) {
+  return function (data) {
+    var pdu = data.pdu;
+    var unit_id = data.unit_id;
 
     log('received data');
 
@@ -70,10 +71,10 @@ proto.handleData = function (that) {
       // socket with error code fc + 0x80 and
       // exception code 0x01 (Illegal Function)
       that.handleException(fc, 0x01);
-      return
+      return;
     }
    
-    var params = reqHandler(pdu);
+    var params = reqHandler(data);
 
     // if params contains a error attribute then
     // handle the error
@@ -83,12 +84,11 @@ proto.handleData = function (that) {
       return;
     }
 
-    var resObj = callback.apply(null, params);
+    var resObj = callback(params);
     var resPdu = resHandler.apply(that, resObj);
-
+debugger;
     // add mbdaHeader to resPdu and send it
     // with write
-
     that.socket.write(resPdu);
 
   };

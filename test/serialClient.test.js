@@ -106,7 +106,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
 
       var res = Put()
 		.word8(4)      // function code
@@ -125,8 +125,8 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
-      client.readInputRegister(1, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
+      client.readInputRegister(0, 1, 1, cb);
 
       var res1 = Put()
 	          .word8(4)  	// function code
@@ -155,8 +155,8 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
-      client.readInputRegister(1, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
+      client.readInputRegister(0, 1, 1, cb);
 
       var res1 = Put() // packet 1
 	          .word8(4)  	// function code
@@ -187,7 +187,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.readInputRegister(0, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
 
       var res = Put()
 		 .word8(0x84)  // error code
@@ -223,8 +223,8 @@ describe("Modbus Serial Client", function () {
 
       writeMock.expects('write').twice();
 
-      client.readInputRegister(0, 1, cb);
-      client.readInputRegister(1, 1, cb);
+      client.readInputRegister(0, 0, 1, cb);
+      client.readInputRegister(0, 1, 1, cb);
 
       socket.emit('data', res1); 
       socket.emit('data', res2);
@@ -242,7 +242,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.readCoils(0, 17, cb);
+      client.readCoils(0, 0, 17, cb);
 
       var res = Put()
 		.word8(1)  // function code
@@ -269,7 +269,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleCoil(13, false, cb);
+      client.writeSingleCoil(0, 13, false, cb);
 
       var res = Put()
 		.word8(5)     // function code
@@ -293,7 +293,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleCoil(15, true, cb);
+      client.writeSingleCoil(0, 15, true, cb);
 
       var res = Put()
 		.word8(5)         // function code
@@ -317,7 +317,7 @@ describe("Modbus Serial Client", function () {
 
       var cb = sinon.spy();
 
-      client.writeSingleRegister(13, 42, cb);
+      client.writeSingleRegister(0, 13, 42, cb);
 
       var res = Put()
   		 .word8(6)      // function code

@@ -123,10 +123,11 @@ describe('Modbus TCP/IP Server', function () {
 
       var spy = sinon.spy(socket, "write");
 
-      socket.emit('data', req);
+      socket.emit('data', {unit_id: 1, pdu: req});
 
       assert.ok(handler.called);
-      assert.deepEqual(handler.args[0], [13, 11]);
+      debugger;
+      assert.deepEqual(handler.args[0][0].param, [13, 11]);
       assert.deepEqual(res, spy.getCall(0).args[0]);
 
     });
@@ -154,10 +155,10 @@ describe('Modbus TCP/IP Server', function () {
 
        var spy = sinon.spy(socket, 'write');
 
-       socket.emit('data', req);
+       socket.emit('data', {unit_id: 1, pdu: req});
   
        assert.ok(stub.called);
-       assert.deepEqual(stub.args[0], [13, 2]); 
+       assert.deepEqual(stub.args[0][0].param, [13, 2]); 
        assert.deepEqual(res, spy.getCall(0).args[0]);
     });
 
@@ -176,7 +177,7 @@ describe('Modbus TCP/IP Server', function () {
 
         var spy = sinon.spy(socket, 'write');
 
-	socket.emit('data', req);
+	socket.emit('data', {unit_id: 1, pdu: req});
 	
 	assert.deepEqual(res, spy.getCall(0).args[0]);
 
@@ -202,7 +203,7 @@ describe('Modbus TCP/IP Server', function () {
 
       handlerSpy.returns({error: 0x02 }); // ILLEGAL DATA ADDRESS
 
-      socket.emit('data', req);
+      socket.emit('data', {unit_id: 1, pdu: req});
 
       assert.deepEqual(res, writeSpy.getCall(0).args[0]);
 
@@ -230,10 +231,10 @@ describe('Modbus TCP/IP Server', function () {
 
       var spy = sinon.spy(socket, 'write');
 
-      socket.emit('data', req);
+      socket.emit('data', {unit_id: 1, pdu: req});
 
       assert.ok(stub.called);
-      assert.deepEqual(stub.args[0], [10, true]);
+      assert.deepEqual(stub.args[0][0].param, [10, true]);
       assert.deepEqual(res, spy.getCall(0).args[0]); 
 
     });

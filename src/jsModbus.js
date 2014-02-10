@@ -1,4 +1,4 @@
-var net         = require('net'),
+var net       = require('net'),
     handler 	= require('./handler');
 
 var log = function () { };
@@ -41,8 +41,8 @@ exports.createTCPClient = function (port, host, cb) {
   });
 
   var client = serialClientModule.create(
-	tcpClient,
-	handler.Client.ResponseHandler);
+	 tcpClient,
+	 handler.Client.ResponseHandler);
 
   client.reconnect = function () {
     socket.connect(port, host);
@@ -67,12 +67,12 @@ exports.createTCPServer = function (port, host, cb) {
   socket.on('error', function (e) { cb(e); });
   socket.on('connection', function (s) {
 
-    var tcpServer = tcpServerModule.create(s);
+  //  var tcpServer = tcpServerModule.create(s);
 
-    var server = serialServerModule.create(
-			tcpServer,
-			handler.Server.RequestHandler,
-			handler.Server.ResponseHandler);
+   // var server = serialServerModule.create(
+	//		tcpServer,
+	//		handler.Server.RequestHandler,
+	//		handler.Server.ResponseHandler);
 
     cb(null, server);
 
