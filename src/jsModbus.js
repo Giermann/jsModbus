@@ -77,3 +77,47 @@ exports.createTCPServer = function (port, host, cb) {
   });
  
 };
+
+
+exports.createRTUClient = function(device, serialSettings, callbacks) {
+    var SerialPort       = require('serialport').SerialPort,
+      rtuClientModule    = require('./rtuClient'),
+      serialClientModule = require('./serialClient');
+
+    rtuClientModule.setLogger(log);
+    serialClientModule.setLogger(log);
+
+    var serial = new SerialPort(device, serialSettings),
+        rtuClient = rtuClientModule.create(serial);
+
+
+    var client = serialClientModule.create(
+     rtuClient,
+     handler.Client.ResponseHandler);
+
+    if (!callbacks)
+      callbacks = {};
+
+    serial.on('error', function (e) {
+      if (callbacks.onError)
+        callbacks.onError(e);
+    });
+
+    serial.on('open', function () {
+      if (callbacks.onOpen)
+        callbacks.onOpen();
+    });
+
+    serial.on('close', function() {
+      if (callbacks.onClose)
+        callbacks.onClose();
+    });
+
+
+  client.reconnect = function () {
+    serial.open();
+  };
+
+  return client;
+
+};

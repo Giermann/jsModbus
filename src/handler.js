@@ -121,7 +121,6 @@ function client_response_readCoils (pdu, cb) {
     var fc = pdu.readUInt8(0),
         byteCount = pdu.readUInt8(1),
         bitCount = byteCount * 8;
-
     var resp = {
       fc: fc,
       byteCount: byteCount,

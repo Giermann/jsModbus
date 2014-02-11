@@ -28,13 +28,13 @@ var ModbusClient = function (socket, resHandler) {
   this.isConnected = false;
   this.socket = socket;
 
-  this.socket.on('connect', function () {
+  var open = function () {
     // release pipe content if there are any yet
-    log('Connection established.');
     that.isConnected = true;
     that.flush();
-  });
-
+  };
+  this.socket.on('connect', open);
+  this.socket.on('open', open);
   // setup data receiver
   this.socket.on('data', this.handleData(this));
   this.socket.on('close', this.handleClose(this));
