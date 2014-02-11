@@ -1,5 +1,5 @@
 var net       = require('net'),
-    handler 	= require('./handler');
+    handler   = require('./handler');
 
 var log = function () { };
 
@@ -8,9 +8,9 @@ exports.setLogger = function (logger) {
   handler.setLogger(logger);
 };
 
-exports.createTCPClient = function (port, host, cb) {
+exports.createTCPClient = function (port, host, callbacks) {
 
-  var net 		         = require('net'),
+  var net              = require('net'),
       tcpClientModule    = require('./tcpClient'),
       serialClientModule = require('./serialClient');
 
@@ -20,29 +20,27 @@ exports.createTCPClient = function (port, host, cb) {
   var socket    = net.connect(port, host),
       tcpClient = tcpClientModule.create(socket);
 
-  socket.on('error', function (e) {
-      
-      if (!cb) {
-          return;
-      }
+  if (!callbacks)
+    callbacks = {};
 
-      cb(e); 
-          
+  socket.on('error', function (e) {
+    if (callbacks.onError)
+      callbacks.onError(e);
   });
 
-  socket.on('connect', function (e) {
+  socket.on('connect', function () {
+    if (callbacks.onOpen)
+      callbacks.onOpen();
+  });
 
-      if (!cb) {
-          return;
-      }
-
-      cb(e);
-
+  socket.on('close', function() {
+    if (callbacks.onClose)
+      callbacks.onClose();
   });
 
   var client = serialClientModule.create(
-	 tcpClient,
-	 handler.Client.ResponseHandler);
+   tcpClient,
+   handler.Client.ResponseHandler);
 
   client.reconnect = function () {
     socket.connect(port, host);
@@ -55,7 +53,7 @@ exports.createTCPClient = function (port, host, cb) {
 
 exports.createTCPServer = function (port, host, cb) {
 
-  var net 	             = require('net'),
+  var net                = require('net'),
       tcpServerModule    = require('./tcpServer'),
       serialServerModule = require('./serialServer');
 
@@ -70,9 +68,9 @@ exports.createTCPServer = function (port, host, cb) {
     var tcpServer = tcpServerModule.create(s);
 
     var server = serialServerModule.create(
-			tcpServer,
-			handler.Server.RequestHandler,
-			handler.Server.ResponseHandler);
+      tcpServer,
+      handler.Server.RequestHandler,
+      handler.Server.ResponseHandler);
 
     cb(null, server);
 
