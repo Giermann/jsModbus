@@ -53,7 +53,7 @@ function ModbusRTUClient(serial) {
             .buffer();
         reqFifo.push(pkt2);         // pipe the packet
         me._flush();
-    }, 20);
+    }, 1000);
   };
 
   this.flush = this._flush; 
@@ -83,7 +83,7 @@ proto._handleConnection = function (that) {
 };
 
 /**
- *  Flush the remainig packets.
+ *  Flush the remaining packets.
  */
 proto._flush = function () {
   if (!this.isConnected) {
@@ -125,28 +125,29 @@ proto._handleClose = function (that) {
  *  Unfortunately data come in single bytes, so we must know when they end.
  */
 function dataReady(that) {
-    if (!that.curData || Date.now() - that.lastTime < 50)
+    if (!that.curData || Date.now() - that.lastTime < 100)
       return;
     var data = that.curData;
-    var pdu = data.slice(1, 0 + data.length - 2);
-    log('PDU extracted');
-    var crc = data.slice(data.length - 2, data.length);
-    // TODO: think about handling crc faults
-    // emit data event and let the 
-    // listener handle the pdu
     that.curData = undefined;
-
-    that.emit('data', pdu); 
+    var data_wo_crc = data.slice(0, data.length - 2);
+    var crc_bytes = data.slice(data.length - 2, data.length);
+    var crc_info = crc.crcModbusHex(data_wo_crc);
+    var crcMatches = crc_bytes[1] * 256 + crc_bytes[0] == crc_info;
+    var pdu = data.slice(1, data.length - 2);
+    if (crcMatches)
+      that.emit('data', pdu); 
+    else
+      that.emit('data', null);
 }
 
 proto._handleData = function (that) {
-
-  return function (data) {
+    
+  return function (data) { 
     if (!that.curData)
-      that.curData = new Buffer(data);
+      that.curData = new Buffer([]);
     that.curData = Buffer.concat([that.curData, new Buffer(data)]);
     that.lastTime = Date.now();
-    setTimeout(function() { dataReady(that); }, 60);
+    setTimeout(function() { dataReady(that); }, 120);
   };
 
 };

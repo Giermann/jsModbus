@@ -141,7 +141,7 @@ proto.flush = function () {
     if (this.pipe.length > 0 && !this.current) {
 
         this.current = this.pipe.shift();
-        log('sending data');
+        console.log('sending data');
         this.socket.write(this.current.unit_id, this.current.pdu);
         this.state = "waiting";
     
@@ -174,7 +174,7 @@ proto.handleData = function (that) {
     // 1. check pdu for errors
 
     log("Checking pdu for errors");
-    if (that.handleErrorPDU(pdu, that.current.cb)) {
+    if (that.handleErrorCRC(pdu, that.current.cb) || that.handleErrorPDU(pdu, that.current.cb)) {
       that.state = "ready";
       that.current = null;
       that.flush();
@@ -198,6 +198,7 @@ proto.handleData = function (that) {
 
 }
 
+var ERROR_CRC = 1048576;
 /**
  *  Check if the given pdu contains fc > 0x84 (error code)
  *  and return false if not, otherwise handle the error,
@@ -218,9 +219,9 @@ proto.handleErrorPDU = function (pdu, cb) {
   var message = Handler.ExceptionMessage[exceptionCode];
 
   var err = { 
-	errorCode: errorCode, 
-	exceptionCode: exceptionCode, 
-	message: message
+  	errorCode: errorCode, 
+  	exceptionCode: exceptionCode, 
+  	message: message
   };
   
   // call the desired callback with
@@ -229,6 +230,17 @@ proto.handleErrorPDU = function (pdu, cb) {
 
   return true; 
 };
+
+proto.handleErrorCRC = function (pdu, cb) {
+  if (pdu)
+    return false;
+  cb(null, {
+    errorCode: ERROR_CRC,
+    exceptionCode: ERROR_CRC,
+    message: Handler.ExceptionMessage[ERROR_CRC]
+  });
+  return true;
+}
 
 /**
  *  Many requests look like this so I made

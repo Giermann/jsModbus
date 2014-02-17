@@ -12,14 +12,14 @@ exports.ExceptionMessage = {
 
   0x01 : 'ILLEGAL FUNCTION',
   0x02 : 'ILLEGAL DATA ADDRESS',
-  0x03 : 'ILLEGAL DATA VALE',
+  0x03 : 'ILLEGAL DATA VALUE',
   0x04 : 'SLAVE DEVICE FAILURE',
   0x05 : 'ACKNOWLEDGE',
   0x06 : 'SLAVE DEVICE BUSY',
   0x08 : 'MEMORY PARITY ERROR',
   0x0A : 'GATEWAY PATH UNAVAILABLE',
-  0x0B : 'GATEWAY TARGET DEVICE FAILED TO RESPOND'
-
+  0x0B : 'GATEWAY TARGET DEVICE FAILED TO RESPOND',
+  1048576 : 'CRC ERROR' // not a real modbus error
 };
 
 exports.FC = {
@@ -117,7 +117,6 @@ function server_request_writeSingleRegister(data) {
 function client_response_readCoils (pdu, cb) {
 
     log("handling read coils response.");   
-
     var fc = pdu.readUInt8(0),
         byteCount = pdu.readUInt8(1),
         bitCount = byteCount * 8;
@@ -126,7 +125,6 @@ function client_response_readCoils (pdu, cb) {
       byteCount: byteCount,
       coils: [] 
     };
-
           var cntr = 0;
           for (var i = 0; i < byteCount; i+=1) {
             var h = 1, cur = pdu.readUInt8(2 + i);
