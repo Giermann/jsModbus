@@ -141,7 +141,6 @@ proto.flush = function () {
     if (this.pipe.length > 0 && !this.current) {
 
         this.current = this.pipe.shift();
-        console.log('sending data');
         this.socket.write(this.current.unit_id, this.current.pdu);
         this.state = "waiting";
     
