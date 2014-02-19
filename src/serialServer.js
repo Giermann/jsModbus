@@ -85,7 +85,6 @@ proto.handleData = function (that) {
 
     var resObj = callback.apply(null, params);
     var resPdu = resHandler.apply(that, resObj);
-debugger;
     // add mbdaHeader to resPdu and send it
     // with write
     that.socket.write(resPdu);

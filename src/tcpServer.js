@@ -72,7 +72,6 @@ proto._flush = function () {
 
   while (this.reqFifo.length > 0) {
     var pkt = this.reqFifo.shift();
-    debugger;
     this._socket.write(pkt);
   }
 }
@@ -84,7 +83,6 @@ proto._flush = function () {
 proto._handleData = function (that) {
 
   return function (data) {
-    debugger;
     log('received data');
 
     var cnt = 0;

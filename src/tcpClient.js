@@ -41,7 +41,6 @@ var ModbusTCPClient = function (socket) {
   // create a modbus tcp packet with mbap and pdu
   // and attach the packet to the packet pipe.
   this.write = function (unit_id, pdu) {
-    debugger;
     var pkt = Put()
 	.word16be(this.reqId++)      // transaction id
 	.word16be(PROTOCOL_VERSION)  // protocol version
