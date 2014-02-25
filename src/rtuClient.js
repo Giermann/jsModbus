@@ -59,7 +59,7 @@ function ModbusRTUClient(serial) {
   this.flush = this._flush; 
   // end the connection
   this.end = function () {
-    this._socket.end();
+    this._socket.close();
   };
 
 }
