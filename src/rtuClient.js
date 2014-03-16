@@ -3,7 +3,7 @@ var Util   = require('util'),
     EventEmitter = require('events').EventEmitter,
     crc = require('crc');
 
-var crc16table = undefined;
+var DEFAULT_RTUWAIT = 50;
 var log = function (msg) { Util.log(msg); }
 
 exports.setLogger = function (logger) {
@@ -19,15 +19,19 @@ var PROTOCOL_VERSION = 0;
  *  .on, .emit and .write methods
  */
 
-function ModbusRTUClient(serial) {
+function ModbusRTUClient(serial, params) {
 
   if (!(this instanceof ModbusRTUClient)) {
-    return new ModbusRTUClient(serial);
+    return new ModbusRTUClient(serial, params);
   }
 
   EventEmitter.call(this);
 
   // listen for data and connection
+  this.rtuWait = params.rtuWait;
+  this.bindump = params.bindump;
+  if (!this.rtuWait)
+    this.rtuWait = DEFAULT_RTUWAIT;
   this._socket = serial;
   this._socket.on('data', this._handleData(this));
   this._socket.on('open', this._handleConnection(this));
@@ -125,6 +129,8 @@ proto._handleClose = function (that) {
  */
 function dataReady(that) {
     delete that.timeoutId;
+    if (that.bindump)
+      console.log(that.curData);
     var data = new Buffer(that.curData);
     delete that.curData;
     var data_wo_crc = data.slice(0, data.length - 2);
@@ -141,14 +147,14 @@ function dataReady(that) {
 proto._handleData = function (that) {
     
   return function (data) { 
+    that.emit('clear_timeout');
     if (!that.curData)
-      that.curData = [];
-    that.curData.
-    that.curData = Array.concat(that.curData, data);
+      that.curData = new Buffer([]);
+    that.curData = Buffer.concat([that.curData, data]);
     that.lastTime = Date.now();
     if (that.timeoutId)
       clearTimeout(that.timeoutId);
-    timeoutId = setTimeout(function() { dataReady(that); }, 120);
+    that.timeoutId = setTimeout(function() { dataReady(that); }, that.rtuWait);
   };
 
 };

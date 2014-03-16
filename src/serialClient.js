@@ -24,7 +24,6 @@ var ModbusClient = function (socket, resHandler, params) {
   this.state = 'ready'; // ready or waiting (for response)
 
   this.timeout = params && params.timeout;
-  console.log(this.timeout);
   this.resHandler = resHandler;
 
   this.isConnected = false;
@@ -41,6 +40,7 @@ var ModbusClient = function (socket, resHandler, params) {
   this.socket.on('data', this.handleData(this));
   this.socket.on('close', this.handleClose(this));
   this.socket.on('end', this.handleEnd(this));
+  this.socket.on('clear_timeout', this.handleClearTimeout(this));
 
   // package and callback queues
   this.pipe = [];
@@ -153,6 +153,12 @@ proto.flush = function () {
 
 };
 
+proto.handleClearTimeout = function (that) {
+  return function() {
+    clearTimeout(that.timeoutTimer);
+    that.timeoutTimer = undefined;
+  };
+}
 
 /**
  *  Returns the main response handler

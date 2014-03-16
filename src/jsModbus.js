@@ -88,7 +88,7 @@ exports.createRTUClient = function(device, serialSettings, params) {
     serialClientModule.setLogger(log);
     
     var serial = new SerialPort(device, serialSettings),
-        rtuClient = rtuClientModule.create(serial);
+        rtuClient = rtuClientModule.create(serial, params);
 
     var callbacks = params;
     var client = serialClientModule.create(
