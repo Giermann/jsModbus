@@ -37,28 +37,29 @@ function ModbusRTUClient(serial) {
   // store the requests in this fifo and 
   // flush them later
   this.reqFifo = [];
-  this.reqId = 0; 
+  this.reqId = 0;
+  debugger;
+  this.messageTimeout = this._socket;
 
   // create a modbus rtu packet with pdu
   // and attach the packet to the packet pipe.
   this.write = function (unit_id, pdu) {
     var reqFifo = this.reqFifo;
     var me = this;
-    setTimeout(function() { //rtu requires break
-          var pkt = Put()
-            .word8(unit_id)              // unit id
-            .put(pdu);
-          var pkt2 = pkt
-            .word16le(crc.crcModbusHex(pkt.buffer()))                    // the actual pdu
-            .buffer();
-        reqFifo.push(pkt2);         // pipe the packet
-        me._flush();
-    }, 1000);
+    var pkt = Put()
+        .word8(unit_id)              // unit id
+        .put(pdu);
+    var pkt2 = pkt
+        .word16le(crc.crcModbusHex(pkt.buffer()))                    // the actual pdu
+        .buffer();
+    reqFifo.push(pkt2);         // pipe the packet
+    me._flush();
   };
 
   this.flush = this._flush; 
   // end the connection
   this.end = function () {
+    this.isConnected = false;
     this._socket.close();
   };
 
@@ -97,17 +98,15 @@ proto._flush = function () {
 };
 
 proto._handleEnd = function (that) {
-
   return function () {
-    that.emit("end");
+    that.emit('end');
   };
-
 };
 
 proto._handleError = function (that) {
-
   return function () {
-//    that.emit("error");
+    that.isConnected = false;
+    that.emit('error');
   };
 };
 
@@ -125,10 +124,9 @@ proto._handleClose = function (that) {
  *  Unfortunately data come in single bytes, so we must know when they end.
  */
 function dataReady(that) {
-    if (!that.curData || Date.now() - that.lastTime < 100)
-      return;
-    var data = that.curData;
-    that.curData = undefined;
+    delete that.timeoutId;
+    var data = new Buffer(that.curData);
+    delete that.curData;
     var data_wo_crc = data.slice(0, data.length - 2);
     var crc_bytes = data.slice(data.length - 2, data.length);
     var crc_info = crc.crcModbusHex(data_wo_crc);
@@ -144,10 +142,13 @@ proto._handleData = function (that) {
     
   return function (data) { 
     if (!that.curData)
-      that.curData = new Buffer([]);
-    that.curData = Buffer.concat([that.curData, new Buffer(data)]);
+      that.curData = [];
+    that.curData.
+    that.curData = Array.concat(that.curData, data);
     that.lastTime = Date.now();
-    setTimeout(function() { dataReady(that); }, 120);
+    if (that.timeoutId)
+      clearTimeout(that.timeoutId);
+    timeoutId = setTimeout(function() { dataReady(that); }, 120);
   };
 
 };

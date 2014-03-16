@@ -13,16 +13,18 @@ var dummy = function () { },
     modbusProtocolVersion = 0,
     modbusUnitIdentifier = 1;
 
-var ModbusClient = function (socket, resHandler) {
+var ModbusClient = function (socket, resHandler, params) {
 
   if (!(this instanceof ModbusClient)) {
-    return new ModbusClient(socket, resHandler);
+    return new ModbusClient(socket, resHandler, params);
   }
 
   var that = this;
 
   this.state = 'ready'; // ready or waiting (for response)
 
+  this.timeout = params && params.timeout;
+  console.log(this.timeout);
   this.resHandler = resHandler;
 
   this.isConnected = false;
@@ -126,7 +128,7 @@ proto.makeRequest = function (unit_id, fc, pdu, cb) {
     this.flush();
   }
 
-}
+};
 
 /**
  *  Iterates through the package pipe and 
@@ -139,14 +141,17 @@ proto.flush = function () {
     }
 
     if (this.pipe.length > 0 && !this.current) {
-
+        var me = this;
         this.current = this.pipe.shift();
         this.socket.write(this.current.unit_id, this.current.pdu);
         this.state = "waiting";
-    
+        if (this.timeout)
+          this.timeoutTimer = setTimeout(function() {
+            me.handleData(me)('timeout');
+          }, this.timeout);
     }
 
-}
+};
 
 
 /**
@@ -167,13 +172,15 @@ proto.handleData = function (that) {
     if (!that.current) {
         return;
     }
-
+    clearTimeout(that.timeoutTimer); 
     log('received data');
 
     // 1. check pdu for errors
 
     log("Checking pdu for errors");
-    if (that.handleErrorCRC(pdu, that.current.cb) || that.handleErrorPDU(pdu, that.current.cb)) {
+    if (that.handleErrorTimeout(pdu, that.current.cb) || 
+        that.handleErrorCRC(pdu, that.current.cb) ||
+        that.handleErrorPDU(pdu, that.current.cb)) {
       that.state = "ready";
       that.current = null;
       that.flush();
@@ -193,11 +200,12 @@ proto.handleData = function (that) {
     that.state = "ready";
     that.flush();
     
-  }
+  };
 
-}
+};
 
 var ERROR_CRC = 1048576;
+var ERROR_TIMEOUT = 1048577;
 /**
  *  Check if the given pdu contains fc > 0x84 (error code)
  *  and return false if not, otherwise handle the error,
@@ -230,6 +238,17 @@ proto.handleErrorPDU = function (pdu, cb) {
   return true; 
 };
 
+proto.handleErrorTimeout = function(pdu, cb) {
+  if (pdu != 'timeout')
+    return false;
+  cb(null, {
+    errorCode: ERROR_TIMEOUT,
+    exceptionCode: ERROR_TIMEOUT,
+    message: Handler.ExceptionMessage[ERROR_TIMEOUT]
+  });
+  return true;  
+};
+
 proto.handleErrorCRC = function (pdu, cb) {
   if (pdu)
     return false;
@@ -251,20 +270,19 @@ proto.pduWithTwoParameter = function (fc, start, quantity) {
 	.word16be(start)
 	.word16be(quantity)
 	.buffer();
-}
+};
 
 proto.handleClose = function (that) {
-
   return function () {
     that.isConnected = false;
-  }
+  };
 };
 
 proto.handleEnd = function (that) {
 
   return function () {
     that.isConnected = false;
-  }
+  };
 
 };
 

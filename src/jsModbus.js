@@ -8,7 +8,7 @@ exports.setLogger = function (logger) {
   handler.setLogger(logger);
 };
 
-exports.createTCPClient = function (port, host, callbacks) {
+exports.createTCPClient = function (port, host, params) {
 
   var net              = require('net'),
       tcpClientModule    = require('./tcpClient'),
@@ -20,6 +20,7 @@ exports.createTCPClient = function (port, host, callbacks) {
   var socket    = net.connect(port, host),
       tcpClient = tcpClientModule.create(socket);
 
+  var callbacks = params;
   if (!callbacks)
     callbacks = {};
 
@@ -40,7 +41,7 @@ exports.createTCPClient = function (port, host, callbacks) {
 
   var client = serialClientModule.create(
    tcpClient,
-   handler.Client.ResponseHandler);
+   handler.Client.ResponseHandler, params);
 
   client.reconnect = function () {
     socket.connect(port, host);
@@ -74,12 +75,11 @@ exports.createTCPServer = function (port, host, cb) {
 
     cb(null, server);
 
-  });
- 
+  }); 
 };
 
 
-exports.createRTUClient = function(device, serialSettings, callbacks) {
+exports.createRTUClient = function(device, serialSettings, params) {
     var SerialPort       = require('serialport').SerialPort,
       rtuClientModule    = require('./rtuClient'),
       serialClientModule = require('./serialClient');
@@ -90,15 +90,15 @@ exports.createRTUClient = function(device, serialSettings, callbacks) {
     var serial = new SerialPort(device, serialSettings),
         rtuClient = rtuClientModule.create(serial);
 
-
+    var callbacks = params;
     var client = serialClientModule.create(
      rtuClient,
-     handler.Client.ResponseHandler);
+     handler.Client.ResponseHandler, params);
 
     if (!callbacks)
       callbacks = {};
 
-    serial.on('error', function (e) {
+    rtuClient.on('error', function (e) {
       if (callbacks.onError)
         callbacks.onError(e);
     });

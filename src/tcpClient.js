@@ -25,6 +25,7 @@ var ModbusTCPClient = function (socket) {
 
   EventEmitter.call(this);
 
+  this.timeoutTimer = undefined;
   // listen for data and connection
   this._socket = socket;
   this._socket.on('data', this._handleData(this));
@@ -83,7 +84,7 @@ proto._handleConnection = function (that) {
 };
 
 /**
- *  Flush the remainig packets.
+ *  Flush the remaining packets.
  */
 proto._flush = function () {
   if (!this.isConnected) {
@@ -119,6 +120,10 @@ proto._handleClose = function (that) {
 
 };
 
+proto._onTimeout = function() {
+  
+}
+
 /**
  *  Handle the incoming data, cut out the mbap
  *  packet and send the pdu to the listener
@@ -126,7 +131,7 @@ proto._handleClose = function (that) {
 proto._handleData = function (that) {
 
   return function (data) {
-   
+    clearTimeout(this.timeoutTimer);
     log('received data');
 
     var cnt = 0;

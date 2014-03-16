@@ -2,7 +2,7 @@
 var Put = require('put');
 var util = require('util');
 
-var log = function (msg) {  }
+var log = function (msg) {  };
 
 exports.setLogger = function (logger) {
   log = logger;
@@ -19,13 +19,14 @@ exports.ExceptionMessage = {
   0x08 : 'MEMORY PARITY ERROR',
   0x0A : 'GATEWAY PATH UNAVAILABLE',
   0x0B : 'GATEWAY TARGET DEVICE FAILED TO RESPOND',
-  1048576 : 'CRC ERROR' // not a real modbus error
+  1048576 : 'CRC ERROR', // not a real modbus error
+  1048577 : 'TIMEOUT'
 };
 
 exports.FC = {
   readCoils		: 1,
   readInputRegister	: 4
-}
+};
 
 exports.Server = { };
 
