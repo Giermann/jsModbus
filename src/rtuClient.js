@@ -42,7 +42,7 @@ function ModbusRTUClient(serial, params) {
   // flush them later
   this.reqFifo = [];
   this.reqId = 0;
-  debugger;
+
   this.messageTimeout = this._socket;
 
   // create a modbus rtu packet with pdu
