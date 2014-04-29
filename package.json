@@ -12,6 +12,7 @@
     "Stefan Poeter <Stefan.Poeter@gmail.com>"
   ],
   "dependencies": {
+		"serialport": "*",
     "put": "0.0.6",
     "crc": "*"
   },
