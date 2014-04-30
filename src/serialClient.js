@@ -55,23 +55,22 @@ var ModbusClient = function (socket, resHandler, params) {
 
   function readRegister(fc) {
     return function(unit_id, start, quantity, cb) {
-
       var pdu = that.pduWithTwoParameter(fc, start, quantity);
-
       that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
+    };
+  }
 
+  function readBit(fc) {
+    return function (unit_id, start, quantity, cb) {
+      var pdu = that.pduWithTwoParameter(fc, start, quantity);
+      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
     };
   }
 
   var api = {
 
-    readCoils: function (unit_id, start, quantity, cb) {
-      var fc  = 1,
-	  pdu = that.pduWithTwoParameter(fc, start, quantity);
-
-      that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
-    },
-
+    readCoils: readBit(1),
+    readDiscreteRegisters: readBit(2),
     readHoldingRegister: readRegister(3),
     readInputRegister: readRegister(4),
 
