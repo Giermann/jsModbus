@@ -70,7 +70,7 @@ var ModbusClient = function (socket, resHandler, params) {
   var api = {
 
     readCoils: readBit(1),
-    readDiscreteRegisters: readBit(2),
+    readDiscreteInputs: readBit(2),
     readHoldingRegister: readRegister(3),
     readInputRegister: readRegister(4),
 
