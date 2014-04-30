@@ -183,10 +183,10 @@ exports.Server.ResponseHandler = {
  */
 exports.Server.RequestHandler = {
 
-  // ReadCoils
+  // Read Coils / Discrete Inputs
   1:  server_request_readCoils,
-
-  // ReadInputRegister
+  2:  server_request_readCoils,
+  // Read Input Register / Read Holding Register
   3:  server_request_readRegisters,
   4:  server_request_readRegisters,
   5:  server_request_writeSingleCoil,
@@ -234,10 +234,10 @@ exports.Client = { };
  *  into parameters for the users callback function.
  */
 exports.Client.ResponseHandler = {
-    // ReadCoils
+    // Read Coils / Discrete Inputs
     1:	client_response_readCoils,
-
-    // ReadHolding/InputRegister
+    2:  client_response_readCoils,
+    // Read Holding / Input Register
     3:  client_response_readRegisters,
     4:  client_response_readRegisters,
     5:  client_response_writeSingleCoil,
