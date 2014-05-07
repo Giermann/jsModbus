@@ -1,5 +1,5 @@
 {
-  "name": "jsmodbus",
+  "name": "jsModbus",
   "version": "0.2.0",
   "description": "[CHASER MOD] Implementation for the Serial/TCP Modbus protocol.",
   "author": "Stefan Poeter <stefan.poeter@gmail.com>",

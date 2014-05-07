@@ -20,7 +20,8 @@ exports.ExceptionMessage = {
   0x0A : 'GATEWAY PATH UNAVAILABLE',
   0x0B : 'GATEWAY TARGET DEVICE FAILED TO RESPOND',
   1048576 : 'CRC ERROR', // not a real modbus error
-  1048577 : 'TIMEOUT'
+  1048577 : 'TIMEOUT',
+  1048578 : 'FUNCTION CODE MISMATCH'
 };
 
 exports.FC = {
@@ -143,7 +144,6 @@ function client_response_readCoils (pdu, cb) {
 
   function client_response_readRegisters(pdu, cb) {
           log("handling read input register response.");
-
     var fc = pdu.readUInt8(0),
           byteCount = pdu.readUInt8(1);
 

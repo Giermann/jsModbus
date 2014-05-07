@@ -120,7 +120,6 @@ var proto = ModbusClient.prototype;
 proto.makeRequest = function (unit_id, fc, pdu, cb) {
 
   var req = { unit_id: unit_id, fc: fc, cb: cb, pdu: pdu };
-
   this.pipe.push(req);
 
   if (this.state === 'ready') {
@@ -181,10 +180,10 @@ proto.handleData = function (that) {
     log('received data');
 
     // 1. check pdu for errors
-
     log("Checking pdu for errors");
     if (that.handleErrorTimeout(pdu, that.current.cb) || 
         that.handleErrorCRC(pdu, that.current.cb) ||
+        that.checkFunctionMismatch(pdu, that.current.fc, that.current.cb) ||
         that.handleErrorPDU(pdu, that.current.cb)) {
       that.state = "ready";
       that.current = null;
@@ -199,6 +198,7 @@ proto.handleData = function (that) {
     if (!handler) { 
       throw "No handler implemented.";
     }
+
     handler(pdu, that.current.cb);
 
     that.current = null;
@@ -211,6 +211,7 @@ proto.handleData = function (that) {
 
 var ERROR_CRC = 1048576;
 var ERROR_TIMEOUT = 1048577;
+var ERROR_FC_MISMATCH = 1048578;
 /**
  *  Check if the given pdu contains fc > 0x84 (error code)
  *  and return false if not, otherwise handle the error,
@@ -252,6 +253,18 @@ proto.handleErrorTimeout = function(pdu, cb) {
     message: Handler.ExceptionMessage[ERROR_TIMEOUT]
   });
   return true;  
+};
+
+proto.checkFunctionMismatch = function(pdu, fc, cb) {
+  var functionCode = pdu.readUInt8(0);
+  if (functionCode >= 0x80 || functionCode === fc)
+    return false;
+  cb(null, {
+    errorCode: ERROR_FC_MISMATCH,
+    exceptionCode: ERROR_FC_MISMATCH,
+    message: Handler.ExceptionMessage[ERROR_FC_MISMATCH]
+  });
+  return true;
 };
 
 proto.handleErrorCRC = function (pdu, cb) {
