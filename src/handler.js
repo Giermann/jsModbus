@@ -38,7 +38,16 @@ exports.Server = { };
  *  the server objects addHandler function.
  */
 
- function server_response_readRegisters(register) {
+ function server_response_readHoldingRegisters(register) {
+        var res = Put().word8(3).word8(register.length * 2);
+  for (var i = 0; i < register.length; i += 1) {
+    res.word16be(register[i]);
+  }
+      return res.buffer();
+ }
+
+
+ function server_response_readInputRegisters(register) {
         var res = Put().word8(4).word8(register.length * 2);
   for (var i = 0; i < register.length; i += 1) {
     res.word16be(register[i]);
@@ -50,6 +59,29 @@ function server_response_readCoils (register) {
   var flr = Math.floor(register.length / 8),
   len = register.length % 8 > 0 ? flr + 1 : flr,
   res = Put().word8(1).word8(len);
+
+  var cntr = 0;
+  for (var i = 0; i < len; i += 1 ) {
+    var cur = 0;
+    for (var j = 0; j < 8; j += 1) {
+      var h = 1 << j;
+
+      if (register[cntr]) {
+        cur += h;
+      }
+
+      cntr += 1;
+    }
+    res.word8(cur);
+  }
+  return res.buffer();
+}
+
+
+function server_response_readDiscreteInputs (register) {
+  var flr = Math.floor(register.length / 8),
+  len = register.length % 8 > 0 ? flr + 1 : flr,
+  res = Put().word8(2).word8(len);
 
   var cntr = 0;
   for (var i = 0; i < len; i += 1 ) {
@@ -165,10 +197,11 @@ function client_response_readCoils (pdu, cb) {
 exports.Server.ResponseHandler = {
   // read coils
   1:  server_response_readCoils,
+  2:  server_response_readDiscreteInputs,
     // read holding registers
-  3:  server_response_readRegisters, 
+  3:  server_response_readHoldingRegisters, 
     // read input registers
-  4:  server_response_readRegisters,
+  4:  server_response_readInputRegisters,
   // write single register
   5:  server_response_writeSingleCoil,
   6:  server_response_writeSingleRegister
