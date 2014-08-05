@@ -24,6 +24,7 @@ var ModbusClient = function (socket, resHandler, params) {
   this.state = 'ready'; // ready or waiting (for response)
 
   this.timeout = params && params.timeout;
+  this.prioritizedFC = params && params.prioritizedFC;
   this.resHandler = resHandler;
 
   this.isConnected = false;
@@ -77,7 +78,7 @@ var ModbusClient = function (socket, resHandler, params) {
     writeSingleCoil: function (unit_id, address, value, cb) {
 
       var fc = 5,
-	  pdu = that.pduWithTwoParameter(fc, address, value?0xff00:0x0000);
+    pdu = that.pduWithTwoParameter(fc, address, value?0xff00:0x0000);
 
       that.makeRequest(unit_id, fc, pdu, !cb?dummy:cb);
 
@@ -120,7 +121,10 @@ var proto = ModbusClient.prototype;
 proto.makeRequest = function (unit_id, fc, pdu, cb) {
 
   var req = { unit_id: unit_id, fc: fc, cb: cb, pdu: pdu };
-  this.pipe.push(req);
+  if (this.prioritizedFC && this.prioritizedFC.indexOf(fc) !== -1)
+    this.pipe.unshift(req);
+  else
+    this.pipe.push(req);
 
   if (this.state === 'ready') {
     this.flush();
@@ -232,9 +236,9 @@ proto.handleErrorPDU = function (pdu, cb) {
   var message = Handler.ExceptionMessage[exceptionCode];
 
   var err = { 
-  	errorCode: errorCode, 
-  	exceptionCode: exceptionCode, 
-  	message: message
+    errorCode: errorCode, 
+    exceptionCode: exceptionCode, 
+    message: message
   };
   
   // call the desired callback with
@@ -284,10 +288,10 @@ proto.handleErrorCRC = function (pdu, cb) {
  */
 proto.pduWithTwoParameter = function (fc, start, quantity) {
   return Put()
-	.word8(fc)
-	.word16be(start)
-	.word16be(quantity)
-	.buffer();
+  .word8(fc)
+  .word16be(start)
+  .word16be(quantity)
+  .buffer();
 };
 
 proto.handleClose = function (that) {
