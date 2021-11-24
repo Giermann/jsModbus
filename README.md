@@ -33,20 +33,28 @@ Client example
         }
     });
 	
-	// make some calls
-	client.readInputRegister(0, 10, function (resp, err) {
+	// make some calls to unit_id 1
+	client.readInputRegister(1, 0, 10, function (resp, err) {
 	  // resp will look like { fc: 4, byteCount: 20, register: [ values 0 - 10 ] }
 	});
 	
-	client.readCoils(5, 3, function (resp, err) {
+	client.readHoldingRegister(1, 0, 10, function (resp, err) {
+	  // resp will look like { fc: 4, byteCount: 20, register: [ values 0 - 10 ] }
+	});
+	
+	client.readCoils(1, 5, 3, function (resp, err) {
 	  // resp will look like { fc: 1, byteCount: 1, register: [ true, false, true ] }
 	});
 	
-	client.writeSingleCoil(5, true, function (resp, err) {
+	client.readDiscreteInputs(1, 5, 3, function (resp, err) {
+	  // resp will look like { fc: 1, byteCount: 1, register: [ true, false, true ] }
+	});
+	
+	client.writeSingleCoil(1, 5, true, function (resp, err) {
 	  // resp will look like { fc: 5, byteCount: 4, outputAddress: 5, outputValue: true }
 	});
 
-  	client.writeSingleRegister(13, 42, function (resp, err) {
+  	client.writeSingleRegister(1, 13, 42, function (resp, err) {
 	  // resp will look like { fc: 6, byteCount: 4, registerAddress: 13, registerValue: 42 }
 	});
 
